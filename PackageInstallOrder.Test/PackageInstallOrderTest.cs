@@ -12,11 +12,56 @@ namespace PackageInstallOrder.Test
         {
             PackageInstaller packageInstaller = new PackageInstaller();
 
-            string[] packages = { "KittenService: CamelCaser", "CamelCaser: " };
-
             string expectedResult = "CamelCaser, KittenService";
 
-            string result = packageInstaller.GetPackageOrder(packages);
+            string[] input = { "KittenService: CamelCaser", "CamelCaser: " };
+
+            string result = packageInstaller.VerifyPackageDependency(input);
+
+            Assert.AreEqual(expectedResult, result);
+
+        }
+
+        [TestMethod]
+        public void TestMethod2()
+        {
+            PackageInstaller packageInstaller = new PackageInstaller();
+            string expectedResult = "KittenService, Ice, Cyberportal, Leetmeme, CamelCaser, Fraudstream";
+
+            string[] input =
+            {
+                "KittenService: ",
+                "Leetmeme: Cyberportal",
+                "Cyberportal: Ice",
+                "CamelCaser: KittenService",
+                "Fraudstream: Leetmeme",
+                "Ice: "
+            };
+
+            string result = packageInstaller.VerifyPackageDependency(input);
+
+            Assert.AreEqual(expectedResult, result);
+
+        }
+
+        [TestMethod]
+        public void TestMethod3()
+        {
+            PackageInstaller packageInstaller = new PackageInstaller();
+
+            string expectedResult = "Invalid Input Packages: Package contains a cycle";
+
+            string[] input =
+            {
+                "KittenService: ",
+                "Leetmeme: Cyberportal",
+                "Cyberportal: Ice",
+                "CamelCaser: KittenService",
+                "Fraudstream: ",
+                "Ice: Leetmeme"
+            };
+
+            string result = packageInstaller.VerifyPackageDependency(input);
 
             Assert.AreEqual(expectedResult, result);
         }
