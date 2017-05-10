@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PackageInstallOrder.Properties;
 
 namespace PackageInstallOrder.Test
 {
@@ -9,13 +10,13 @@ namespace PackageInstallOrder.Test
         [TestMethod]
         public void TestMethod1()
         {
-            PackageInstallOrder packageInstallOrder = new PackageInstallOrder();
+            PackageInstaller packageInstaller = new PackageInstaller();
 
             string[] packages = { "KittenService: CamelCaser", "CamelCaser: " };
 
             string expectedResult = "CamelCaser, KittenService";
 
-            string result = packageInstallOrder.GetPackageOrder(packages);
+            string result = packageInstaller.GetPackageOrder(packages);
 
             Assert.AreEqual(expectedResult, result);
         }
