@@ -11,19 +11,23 @@ namespace PackageInstallOrder
     {
         public string VerifyPackageDependency(string[] input)
         {
-            string packageDependencyOrder = "";
-            int packageCount = 0;
-            int numPackages = input.Length;
+            string packageDependencyOrder = ""; //Will hold package order string to return
+            string currPackage; //will hold current package in loops
+            string dependency; //will hold current package dependency in loops
+
+            int packageCount = 0; //Counts number of packages added to the packageDependencyOrder string, to ensure all packages are added
+            int numPackages = input.Length; //length of string[] passed in, will be used to check against number of packages added to packageDependencyOrder string
 
             //check for packages without dependencies
             for (int i = 0; i < input.Length; i++)
             {
-                char[] tempCharArr = input[i].ToCharArray();
+                currPackage = getCurrentPackage(input[i]);
+                dependency = getDependency(input[i]);
 
                 //if a dependency does not exist, add it to the dependency order string
-                if (getDependency(input[i]).Equals("No dependency"))
+                if (dependency.Equals("No dependency"))
                 {
-                    packageDependencyOrder += addNoDependencies(input[i]);
+                    packageDependencyOrder += currPackage + ", ";
 
                     packageCount++;
                 }
@@ -32,73 +36,50 @@ namespace PackageInstallOrder
             //check for packages with dependencies
             for (int i = 0; i < input.Length; i++)
             {
-                char[] tempCharArr = input[i].ToCharArray();
+                currPackage = getCurrentPackage(input[i]);
+                dependency = getDependency(input[i]);
 
-                Debug.WriteLine("input " + i + " contains dependency: " + containsDependency(packageDependencyOrder, getDependency(input[i])));
-                Debug.WriteLine("input " + i + " dependency is: " + getDependency(input[i]));
-                Debug.WriteLine("packgedependencyorder contains dependency: " + packageDependencyOrder.Contains(addWithDependencies(input[i])));
+                //Debug.WriteLine("input " + i + " contains dependency: " + packageDependencyOrder.Contains(dependency));
+                //Debug.WriteLine("input " + i + " dependency is: " + dependency);
+                //Debug.WriteLine("packgedependencyorder contains dependency: " + packageDependencyOrder.Contains(currPackage));
 
                 //if the dependency order string contains the dependency for the current package AND does not already contain the current package, add it to the string
-                //reset to zero to ensure all packages are checked 
-                if (containsDependency(packageDependencyOrder, getDependency(input[i])) && !packageDependencyOrder.Contains(addWithDependencies(input[i])))
+                //reset i to zero to ensure all packages are checked 
+                if (packageDependencyOrder.Contains(dependency) && !packageDependencyOrder.Contains(currPackage))
                 {
                     //Debug.WriteLine(containsDependency(packageDependencyOrder, getDependency(input[i])));
                     //Debug.WriteLine("Adding " + addWithDependencies(input[i]) + " to dependency order string");
-
-                    packageDependencyOrder += addWithDependencies(input[i]);
+                    packageDependencyOrder += currPackage + ", ";
 
                     i = 0;
                     packageCount++;
                 }
+
+                //Debug.WriteLine(packageDependencyOrder);
             }
 
-            //if a dependency loop is present, not all of the packages would be added to the order string, if the number of packes added to the string does not equal the number of packages, inform that there is an invalid input in the packages
-
+            //if a dependency loop is present, not all of the packages would be added to the order string, if the number of packes added to the string does not equal the number of packages, throw new PackageRejectedException
             //Debug.WriteLine("package count is: " + packageCount + " number of packages is: " + numPackages);
             if (packageCount != numPackages)
             {
-                packageDependencyOrder = "Invalid Input Packages: Package contains a cycle";
+                //Debug.WriteLine("Throwing new exception");
+                packageDependencyOrder = "Invalid Package Input";
+                throw new PackageRejectedException(packageDependencyOrder);
             }
 
-            if (!packageDependencyOrder.Equals("Invalid Input Packages: Package contains a cycle"))
+            if (!packageDependencyOrder.Equals("Invalid Package Input"))
             {
                 packageDependencyOrder = packageDependencyOrder.Substring(0, packageDependencyOrder.Length - 2);
             }
 
 
+            Console.WriteLine(packageDependencyOrder);
+
             return packageDependencyOrder;
         }
 
-        private string addNoDependencies(string tempPackage)
-        {
-            string noDependency = "";
-
-            //Debug.WriteLine("Temp Char Arr Length: " + tempCharArr.Length);
-            int j = 0;
-            while (tempPackage[j] != ':')
-            {
-                j++;
-            }
-            j++;
-            //Debug.WriteLine(j + 2);
-
-            //checks if there is a dependency present, if not add, it will add the
-            if (j + 2 > tempPackage.Length)
-            {
-                //Debug.WriteLine("J + 2 > " + tempCharArr.Length);
-                j = 0;
-                while (tempPackage[j] != ':')
-                {
-                    noDependency += tempPackage[j];
-                    j++;
-                }
-                noDependency += ", ";
-            }
-
-            return noDependency;
-        }
-
-        private string addWithDependencies(string tempPackage)
+        //called if there is a dependency, program should already have checked if dependency was in string, if it was this will add the package to the string
+        private string getCurrentPackage(string tempPackage)
         {
             string package = "";
 
@@ -108,8 +89,6 @@ namespace PackageInstallOrder
                 package += tempPackage[j];
                 j++;
             }
-
-            package += ", ";
 
             return package;
         }
@@ -145,22 +124,6 @@ namespace PackageInstallOrder
             //Debug.WriteLine(dependency);
 
             return dependency;
-        }
-
-        private bool containsDependency(string dependencyOrder, string dependency)
-        {
-            bool contains;
-
-            if (dependencyOrder.Contains(dependency))
-            {
-                contains = true;
-            }
-            else
-            {
-                contains = false;
-            }
-
-            return contains;
         }
     }
 }

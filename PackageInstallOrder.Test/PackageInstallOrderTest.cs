@@ -26,6 +26,7 @@ namespace PackageInstallOrder.Test
         public void TestMethod2()
         {
             PackageInstaller packageInstaller = new PackageInstaller();
+
             string expectedResult = "KittenService, Ice, Cyberportal, Leetmeme, CamelCaser, Fraudstream";
 
             string[] input =
@@ -45,11 +46,10 @@ namespace PackageInstallOrder.Test
         }
 
         [TestMethod]
+        [ExpectedException(typeof(PackageRejectedException), "An invalid package was inappropriately allowed")]
         public void TestMethod3()
         {
             PackageInstaller packageInstaller = new PackageInstaller();
-
-            string expectedResult = "Invalid Input Packages: Package contains a cycle";
 
             string[] input =
             {
@@ -61,9 +61,76 @@ namespace PackageInstallOrder.Test
                 "Ice: Leetmeme"
             };
 
-            string result = packageInstaller.VerifyPackageDependency(input);
+            packageInstaller.VerifyPackageDependency(input);
+        }
 
-            Assert.AreEqual(expectedResult, result);
+        [TestMethod]
+        [ExpectedException(typeof(PackageRejectedException), "An invalid package was inappropriately allowed")]
+        public void TestMethod4()
+        {
+            PackageInstaller packageInstaller = new PackageInstaller();
+
+            string[] input =
+            {
+                "KittenService: Leetmeme",
+                "Leetmeme: KittenService",
+            };
+
+            packageInstaller.VerifyPackageDependency(input);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(PackageRejectedException), "An invalid package was inappropriately allowed")]
+        public void TestMethod5()
+        {
+            PackageInstaller packageInstaller = new PackageInstaller();
+
+            string[] input =
+            {
+                "Leetmeme: Cyberportal",
+                "KittenService: ",
+                "Ice: Leetmeme",
+                "CamelCaser: KittenService",
+                "Fraudstream: ",
+                "Cyberportal: Ice"
+
+            };
+
+            packageInstaller.VerifyPackageDependency(input);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(PackageRejectedException), "An invalid package was inappropriately allowed")]
+        public void TestMethod6()
+        {
+            PackageInstaller packageInstaller = new PackageInstaller();
+
+            string[] input =
+            {
+                "Leetmeme: Cyberportal",
+                "KittenService: Ice ",
+                "Ice: Leetmeme",
+                "CandyPanda: CranberryPie",
+                "CamelCaser: KittenService",
+                "Fraudstream: CyberPortal",
+                "CranberryPie: Leetmeme",
+                "Cyberportal: Ice",
+                "AppleSauce: CherryPie",
+                "Holdup: DontStop",
+                "Computer: GraphicsCard",
+                "GraphicsCard: HoldUp",
+                "DontStop: AppleSauce",
+                "CherryPie: CranberryPie",
+
+            };
+
+            packageInstaller.VerifyPackageDependency(input);
+        }
+
+        [TestMethod]
+        public void TestMethod7()
+        {
+
         }
     }
 }
