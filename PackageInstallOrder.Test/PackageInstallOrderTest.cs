@@ -6,7 +6,7 @@ namespace PackageInstallOrder.Test
 {
     [TestClass]
     public class PackageInstallOrderTest
-    {
+{
         [TestMethod]
         public void TestMethod1()
         {
@@ -73,7 +73,7 @@ namespace PackageInstallOrder.Test
             string[] input =
             {
                 "KittenService: Leetmeme",
-                "Leetmeme: KittenService",
+                "Leetmeme:",
             };
 
             packageInstaller.VerifyPackageDependency(input);
@@ -112,7 +112,7 @@ namespace PackageInstallOrder.Test
                 "Ice: Leetmeme",
                 "CandyPanda: CranberryPie",
                 "CamelCaser: KittenService",
-                "Fraudstream: CyberPortal",
+                "Fraudstream:CyberPortal",
                 "CranberryPie: Leetmeme",
                 "Cyberportal: Ice",
                 "AppleSauce: CherryPie",
@@ -128,9 +128,23 @@ namespace PackageInstallOrder.Test
         }
 
         [TestMethod]
+        [ExpectedException(typeof(PackageRejectedException), "An invalid package was inappropriately allowed")]
         public void TestMethod7()
         {
+            PackageInstaller packageInstaller = new PackageInstaller();
 
+            string[] input =
+            {
+                "Leetmeme Cyberportal",
+                "KittenService: ",
+                "Ice: Leetmeme",
+                "CamelCaser: KittenService",
+                "Fraudstream: ",
+                "Cyberportal: Ice"
+
+            };
+
+            packageInstaller.VerifyPackageDependency(input);
         }
     }
 }

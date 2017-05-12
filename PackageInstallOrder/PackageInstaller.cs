@@ -83,11 +83,17 @@ namespace PackageInstallOrder
         {
             string package = "";
 
-            int j = 0;
-            while (tempPackage[j] != ':')
+            int packageIndx = 0;
+
+            if (!tempPackage.Contains(":") || !tempPackage.Contains(" "))
             {
-                package += tempPackage[j];
-                j++;
+                throw new PackageRejectedException("Invalid Package Input");
+            }
+
+            while (tempPackage[packageIndx] != ':')
+            {
+                package += tempPackage[packageIndx];
+                packageIndx++;
             }
 
             return package;
@@ -99,21 +105,28 @@ namespace PackageInstallOrder
 
             //Debug.WriteLine("getting dependency for: " + tempPackage);
 
-            int j = 0;
-            while (tempPackage[j] != ':')
-            {
-                j++;
-            }
-            j++;
+            //get the index of : to know where the dependency starts, 
+            int dependencyIndx = tempPackage.IndexOf(':');
 
-            if (j + 1 < tempPackage.Length)
+            if (dependencyIndx + 1 > tempPackage.Length)
             {
-                j++;
+                throw new PackageRejectedException("Invalid Package Input");
+            }
+            else if (tempPackage[dependencyIndx + 1] != ' ')
+            {
+                throw new PackageRejectedException("Invalid Package Input");
+            }
+
+            dependencyIndx++;
+
+            if (dependencyIndx + 1 < tempPackage.Length)
+            {
+                dependencyIndx++;
                 //Debug.WriteLine("Dependency starts with " + tempPackage[j]);
-                while (j < tempPackage.Length)
+                while (dependencyIndx < tempPackage.Length)
                 {
-                    dependency += tempPackage[j];
-                    j++;
+                    dependency += tempPackage[dependencyIndx];
+                    dependencyIndx++;
                 }
             }
             else
